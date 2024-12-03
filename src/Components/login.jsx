@@ -8,6 +8,7 @@ const LoginPage = () => {
     password: "",
     remember: false,
   });
+  const [errorMessage, setErrorMessage] = useState(""); // For displaying error messages
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -17,15 +18,42 @@ const LoginPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log("Login data:", formData);
+
+
+    
+    // Send login data to the backend
+    try {
+      const response = await fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('Login successful:', data);
+        // Save the token to localStorage/sessionStorage
+        localStorage.setItem('token', data.token);
+        // Redirect to another page, e.g., dashboard
+        window.location.href = "/dashboard"; // Or use `history.push('/dashboard')` if you're using React Router
+      } else {
+        setErrorMessage(data.message);
+      }
+    } catch (error) {
+      setErrorMessage("Error connecting to the backend");
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      {/* Container */}
       <div className="flex flex-col lg:flex-row max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden">
         {/* Image Section */}
         <div className="hidden lg:block lg:w-1/2">
@@ -38,9 +66,6 @@ const LoginPage = () => {
 
         {/* Form Section */}
         <div className="w-full lg:w-1/2 p-8">
-          {/* Logo */}
-
-          {/* Login Form */}
           <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">
             Login to Your Account
           </h2>
@@ -61,7 +86,7 @@ const LoginPage = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-2 mt-2 border bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your email or Username"
+                placeholder="Enter your email"
               />
             </div>
 
@@ -81,26 +106,57 @@ const LoginPage = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-2 mt-2 border bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your a password"
+                placeholder="Enter your password"
               />
             </div>
+
+
+
+
+
+         
+
+            {/* Error Message */}
+            {errorMessage && (
+              <div className="text-red-500 text-center mt-2">{errorMessage}</div>
+            )}
 
             {/* Submit Button */}
             <div>
               <button
                 type="submit"
-                className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full py-2 px-4 bg-green-500  text-white font-semibold rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 Login
               </button>
             </div>
-                        {/* Login As Admin*/}
-                        <div className="text-center">
-                          Login as ? <Link to="/admin_login" className="text-blue-700 no-underline hover:underline mx-2">Admin</Link>
-                        </div> 
 
+
+
+
+            {/* Login As Admin*/}
+            <div className="text-center">
+              Login as ?{" "}
+              <Link
+                to="/admin_login"
+                className="text-blue-700 no-underline hover:underline mx-2"
+              >
+                Admin
+              </Link>
+            </div>
 
             {/* Forgot Password Link */}
+            <div className="text-center mt-4">
+  <span className="text-black "> </span>
+  <Link
+    to="/forgot-password"
+    className="text-white bg-blue-600 rounded px-4 py-2 no-underline"
+  >
+  Forget password?
+  </Link>
+</div>
+
+
             <div className="text-center">
               <span className="text-black">Don't have an account? </span>
               <Link

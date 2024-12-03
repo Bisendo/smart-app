@@ -1,26 +1,46 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
+import axios from "axios"; // Import axios for HTTP requests
 import registerImage from "../images/image1.jpg"; // Adjust path as needed
 
-const LoginPage = () => {
+const RegisterPage = () => {
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
-    remember: false,
   });
+  const [errorMessage, setErrorMessage] = useState(""); // Error message state
+  const navigate = useNavigate(); // Initialize navigate
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log("Login data:", formData);
+    setErrorMessage(""); // Reset error message before attempting to register
+
+    try {
+      // Send the form data to the backend API for registration
+      const response = await axios.post("http://localhost:5000/register", formData);
+
+      // Handle the response
+      if (response.data.success) {
+        console.log("Registration successful:", response.data);
+        // Navigate to the login page after successful registration
+        navigate("/login");
+      } else {
+        console.log("Registration failed:", response.data.message);
+        setErrorMessage(response.data.message); // Set error message from backend
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
+      setErrorMessage("An error occurred during registration. Please try again."); // Set generic error message
+    }
   };
 
   return (
@@ -31,32 +51,39 @@ const LoginPage = () => {
         <div className="hidden lg:block lg:w-1/2">
           <img
             src={registerImage}
-            alt="Login Visual"
+            alt="Register Visual"
             className="h-full w-full object-cover"
           />
         </div>
 
         {/* Form Section */}
         <div className="w-full lg:w-1/2 p-8">
-          {/* Logo */}
-
-          {/* Login Form */}
+          {/* Register Form */}
           <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">
             Sign up to Your Account
           </h2>
+
+          {/* Display error message if there is one */}
+          {errorMessage && (
+            <div className="bg-red-200 text-red-700 p-4 rounded mb-4">
+              <strong>Error: </strong>{errorMessage}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Full Name */}
             <div>
               <label
-                htmlFor="name"
+                htmlFor="username"
                 className="block text-sm font-medium text-gray-600"
               >
-                Full Name
+                Full Names
               </label>
               <input
                 type="text"
-                id="name"
-                name="name"
-                value={formData.name}
+                id="username"
+                name="username"
+                value={formData.username}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-2 mt-2 bg-gray-100 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -80,7 +107,7 @@ const LoginPage = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-2 mt-2 border bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your email "
+                placeholder="Enter your email"
               />
             </div>
 
@@ -100,7 +127,7 @@ const LoginPage = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-2 mt-2 border bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your a password"
+                placeholder="Enter your password"
               />
             </div>
 
@@ -114,11 +141,11 @@ const LoginPage = () => {
               </button>
             </div>
 
-            {/* Forgot Password Link */}
+            {/* Login Link */}
             <div className="text-center">
-              <span className="text-black">If you have an account?</span>{" "}
+              <span className="text-black">Already have an account? </span>{" "}
               <Link
-                to="/dashboard"
+                to="/login"
                 className="text-sm text-blue-600 no-underline hover:underline"
               >
                 Login
@@ -131,4 +158,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
