@@ -37,9 +37,9 @@ const RegisterPage = () => {
         console.log("Registration failed:", response.data.message);
         setErrorMessage(response.data.message); // Set error message from backend
       }
-    } catch (error) {
+    } catch (error){
       console.error("Error during registration:", error);
-      setErrorMessage("An error occurred during registration. Please try again."); // Set generic error message
+      setErrorMessage("Email already exists."); // Set generic error message
     }
   };
 
